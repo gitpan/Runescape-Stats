@@ -18,7 +18,7 @@ use LWP::Simple;
 use Storable qw(lock_nstore lock_retrieve);
 
 use vars qw($VERSION);
-$VERSION = "0.02";
+$VERSION = "0.03";
 
 my $skills = {};
 $skills->{byNumber} = {0 => 'overall', 1 => 'fighting', 2 => 'ranged',

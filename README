@@ -1,8 +1,6 @@
 Runescape::Stats 0.02
 A simple interface to Runescape hiscores.
 
-Please read the POD for the module documentation.
-
 Installation:
 ---------------
 %perl Makefile.PL
@@ -11,3 +9,195 @@ Installation:
 %make install
 
 email perl@madcoder.net if you *really* need help
+
+========================================================
+Runescape::Stats Documentation:
+
+NAME
+    Runescape::Stats - A persistent, cached, and object-oriented interface
+    to Runescape Hiscores.
+
+SYNOPSIS
+        use Runescape::Stats;
+
+        ## Persistent Constructor    
+        my $obj = new Runescape::Stats('filename');
+
+        ## ..Or Non-Persistent Constructor (Does not save cache to file)
+        my $obj = new Runescape::Stats;
+
+        my $statResult = $obj->getStat($username, $skill);
+        print $statResult->level;
+
+        my @statResults = $obj->getAllStats($username);
+        print $_->level foreach (@statResults);
+
+DESCRIPTION
+    This is Runescape::Stats. It was created to enable perl scripts to
+    easily interface to the Jagex hiscores tables and use them as a data
+    source. Not only does it maintain a per-object cache (stats are valid
+    for a certain [settable] amount of time), but it also features the
+    ability to read and write its cache to Storable files by passing a
+    filename to the constructor. By saving the cache, multiple applications
+    can share one cache file, avoiding system-wide repeated lookups. It also
+    is able to mass-harvest all found Stats on any hiscore page, including
+    the users which surround a queried user. This enables the cache to
+    contain preliminary data for users that have not even been searched for
+    -- data which speeds up requests and minimizes Jagex server load should
+    those other users ever be searched for.
+
+    Runescape::Stats contains two modules:
+
+    *   Runescape::Stats
+
+        This module performs lookups, conversions, and caching, and also
+        implements cache persistence should it be requested. This is the
+        meat of the program and is the only one of these modules that you
+        will manually instantiate.
+
+    *   Runescape::Stats::StatPod
+
+        This small transport module contains very little code. It is used to
+        shuttle resulting stat info back to the calling program from the
+        Runescape::Stats data retrieval methods. This module increases the
+        efficiency of stat retrieval and simplifies the code required to
+        handle the stat data.
+
+    Now that you know a little more about Runescape::Stats, let's examine
+    how to use it...
+
+USING THE MODULE
+  Instantiation
+    To make use of Runescape::Stats, you only need one thing: a
+    Runescape::Stats object. There are two ways to create a Runescape::Stats
+    object, one which prepares it for cache persistence, and the other which
+    disables cache persistence (and may give you a slight speed increase if
+    your cache is large).
+
+    *   Non-persistent Constructor
+
+        Takes no arguments.
+
+            $object = new Runescape::Stats;
+
+    *   Persistent Constructor
+
+        Takes filename of file in which to store persistent cache. This
+        filename can be specified by more that one application which uses
+        Runescape::Stats and they will all share statcaches.
+
+            $object = new Runescape::Stats("/etc/statcache.data");
+
+    Moving on...
+
+  Stat Retrieval
+    Runescape::Stats objects provide two simple methods for stat retrieval:
+
+    *
+            $object->getStat($username, $skill)
+
+        getStat retrieves data for a single user in a particular skill.
+        $username will be automatically cleaned up by Runescape::Stats, so
+        you need not worry about formatting or capitalization. $skill may be
+        any full Sunescape skill name (i.e. 'Smithing'), or any skill number
+        (i.e. 11). Skill names are case-insensitive. getStat returns a
+        single Runescape::Stats::StatPod object.
+
+    *
+            $object->getAllStats($username)
+
+        getAllStats executes getStat internally for every known skill and
+        returns an array of the resulting Runescape::Stats::StatPod objects.
+
+  Other Methods
+    These are methods that generally do not need to be used in a script
+    which utilizes Runescape::Stats:
+
+    *   loadData()
+
+        This method will force a persistent Runescape::Stats object to
+        reload its cache from it's assigned file. The file used is the one
+        passed to the persistent constructor. Has no effect on
+        non-persistent objects.
+
+    *   saveData()
+
+        This method will force a persistent Runescape::Stats object to save
+        its cache to it's assigned file. No effect on non-persistent
+        objects.
+
+    *   clearCache()
+
+        This method will clear the internal object cache. On a
+        non-persistent Runescape::Stats object, this will cause new queries
+        to re-retrieve data from the Jagex tables. In a persistent object,
+        this call will have no effect unless followed by a call to
+        saveData(), as the cache file will be reread before the next query
+        begins.
+
+    *   setCacheTimeout($timeInSeconds)
+
+        This is used on an object-by-object basis to set the length of time
+        (in seconds) before any cached stat expires. Each stat in the cache
+        is flagged with the time retrieved, and if the number of seconds
+        elapsed since then is greater than this setting, that stat will be
+        re-retrieved from the hiscore tables. Default value is 20,000
+        seconds in new Runescape::Stats objects, which is approximately five
+        and a half hours.
+
+AUTHORS
+    Designed, created, and developed by Ben Ullian : http://www.madcoder.net
+
+URL
+    Information on using this module will soon be available on
+    http://www.madcoder.net
+
+========================================================
+Runescape::Stats::StatPod Documentation:NAME
+
+    Runescape::Stats::StatPod - A very, very simple module through which
+    Runescape::Stats retuns data from it's stat retrieval functions.
+
+SYNOPSIS
+    Runescape::Stats::StatPod items are created and returned by the
+    getStat() and getAllStats() functions of Runescape::Stats.
+
+    For example: $statpod = $statsobject->getStat($username, $skill);
+
+    Each StatPod has seven accessor functions:
+
+    *   $statpod->name
+
+        Returns username of user whose stats are within this StatPod.
+
+    *   $statpod->skill
+
+        Returns name of Runescape skill which contains these stats for this
+        user.
+
+    *   $statpod->lvl and $statpod->level
+
+        Synonymic functions which both return the level of the specified
+        user in the specified skill.
+
+    *   $statpod->rank
+
+        Returns the rank of the specified user in the specified skill.
+
+    *   $statpod->xp, $statpod->exp, and $statpod->experience
+
+        Synonymic functions which return the experience of the specified
+        user in the specifed skill.
+
+  What if the user doesn't appear in the stat table?
+    The StatPod accessor methods for rank, level, and experience will all
+    return undef. If any one of them returns undef, you can assume that the
+    rest will be due to the logic used within Runescape::Stats.
+
+AUTHORS
+    Designed, created, and developed by Ben Ullian : http://www.madcoder.net
+
+URL
+    Information on using this module will soon be available on
+    http://www.madcoder.net
+

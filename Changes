@@ -9,3 +9,6 @@ Revision history for Perl extension Runescape::Stats.
 	- Wrote POD Documentation
 	- Prepared for CPAN
 	- Implemented Persistence option
+
+0.03 Tue Jul 15 17:58:12 2003
+	- Fixed Module for CPAN (wouldn't install correctly before)

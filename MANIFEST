@@ -1,7 +1,7 @@
 README
-Runescape/Stats.pm
+lib/Runescape/Stats.pm
 Makefile.PL
-Runescape/Stats/StatPod.pm
+lib/Runescape/Stats/StatPod.pm
 Changes
 t/1.t
 MANIFEST
