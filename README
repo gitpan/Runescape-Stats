@@ -1,0 +1,13 @@
+Runescape::Stats 0.02
+A simple interface to Runescape hiscores.
+
+Please read the POD for the module documentation.
+
+Installation:
+---------------
+%perl Makefile.PL
+%make
+%make test
+%make install
+
+email perl@madcoder.net if you *really* need help

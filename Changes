@@ -1,0 +1,11 @@
+Revision history for Perl extension Runescape::Stats.
+
+0.01  Thu Jun 26 19:09:11 2003
+	Created, test driver.
+
+0.02  Fri Jun 27 2:12:54 2003
+	- Wrote all module code
+	- Created StatPod
+	- Wrote POD Documentation
+	- Prepared for CPAN
+	- Implemented Persistence option
